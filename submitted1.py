@@ -17,14 +17,15 @@ def delta(symbol, field, k):
 		except KeyError:
 			c = 3
 	points = sorted(points)
-	#print points
 
 	# linear regression
 	def findError(i,j):
+					
 		x = map(lambda x:x[0], points[i:(j+1)])
 		y = map(lambda x:x[1], points[i:(j+1)])
 		p = np.poly1d(np.polyfit(x, y, 1))
-		e = sum(map(lambda x,y: (x-y)**2,y,map(lambda x: p(x), x)))
+		z = map(lambda x: p(x), x)
+		e = sum(map(lambda x,y: (x-y)**2,y,z))
 		return e
 
 	error = np.zeros((len(points), len(points)))
@@ -42,20 +43,30 @@ def delta(symbol, field, k):
 		error[j,j]=0
 		minVal = sys.float_info.max
 		for i in xrange(j+1):
-			if not i==j and points[i][0]==points[i-1][0]:
-				x = error[i,j] + getM(i-1) 
-			else:
-				x = error[i,j] + k + getM(i-1) 
+			x = error[i,j] + k + getM(i-1) 
 			if x < minVal:
 				minVal = x
 		return minVal
 
 	for j in xrange(len(points)):
 		M[j] = compute(points,j)
-	minVal = M[len(points)-1]
+		try:
+			if points[j][0]==points[j+1][0]:
+				temp = points[j]
+				points[j] = points[j+1]
+				points[j+1] = temp
+			newMin = compute(points, j)
+			if newMin < M[j]:
+				M[j] = newMin
+			else:
+				temp = points[j]
+				points[j] = points[j+1]
+				points[j+1] = temp
+				M[j]=compute(points,j)
+		except IndexError:
+			c = 3
 
-	#print points
-	return int(math.ceil(minVal))
+	return int(math.ceil(M[len(points)-1]))
 
 def mysum(start, end, symbol, field):
 	val = 0
