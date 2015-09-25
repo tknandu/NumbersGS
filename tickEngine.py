@@ -17,10 +17,10 @@ def delta(symbol, field, k):
 		except KeyError:
 			c = 3
 	points = sorted(points)
+	#print points
 
 	# linear regression
 	def findError(i,j):
-					
 		x = map(lambda x:x[0], points[i:(j+1)])
 		y = map(lambda x:x[1], points[i:(j+1)])
 		p = np.poly1d(np.polyfit(x, y, 1))
@@ -54,18 +54,17 @@ def delta(symbol, field, k):
 			if points[j][0]==points[j+1][0]:
 				temp = points[j]
 				points[j] = points[j+1]
-				points[j+1] = points[j]
+				points[j+1] = temp
 			newMin = compute(points, j)
 			if newMin < M[j]:
 				M[j] = newMin
 			else:
 				temp = points[j]
 				points[j] = points[j+1]
-				points[j+1] = points[j]
-				M[j]=compute(points,j)
+				points[j+1] = temp
+				M[j] = compute(points, j)
 		except IndexError:
 			c = 3
-			
 
 	return int(math.ceil(M[len(points)-1]))
 
